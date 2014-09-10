@@ -45,6 +45,8 @@ java：导入Adb-For-Test.jar即可
 ```
 #coding=utf-8
 
+import os
+
 from adbUtils.utils.adbUtils import ADB
 from adbUtils.utils.imageUtils import ImageUtils
 from adbUtils.utils.element import Element
@@ -53,10 +55,10 @@ adb = ADB()
 element = Element()
 
 #获取图片区域
-icon = element.getElementBoundsById("android.widget.TextView")[0]
+icon = element.getElementBoundsByClass("android.widget.TextView")[0]
 image = ImageUtils()
 #截取图片
-image.screebShot().subImage(icon).writeToFile(os.getcwd(), "image")
+image.screenShot().subImage(icon).writeToFile(os.getcwd(), "image")
 
 #加载需要对比的目标图片
 #load = image.loadImage(os.getcwd() + "\\image.png")
