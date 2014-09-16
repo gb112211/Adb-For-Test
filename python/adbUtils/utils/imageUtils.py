@@ -9,6 +9,8 @@ import os
 import shutil
 from PIL import Image
 
+PATH = lambda p: os.path.abspath(p)
+
 class ImageUtils(object):
 
     def __init__(self):
@@ -21,7 +23,7 @@ class ImageUtils(object):
         """
         截取设备屏幕
         """
-        subprocess.call("adb shell screencap -p /data/local/tmp/iuniTemp.png")
+        subprocess.call("adb shell screencap -p /data/local/tmp/temp.png")
         os.popen("adb pull /data/local/tmp/iuniTemp.png " + self.tempFile)
 
         return self
@@ -33,8 +35,8 @@ class ImageUtils(object):
         """
         if not os.path.isdir(dirPath):
             os.makedirs(dirPath)
-        shutil.copyfile(self.tempFile + "\\iunitemp.png", dirPath + "\\" + imageName + "." + form)
-        os.popen("adb shell rm /data/local/tmp/iunitemp.png")
+        shutil.copyfile(PATH(self.tempFile + "/temp.png"), PATH(dirPath + "/" + imageName + "." + form))
+        os.popen("adb shell rm /data/local/tmp/temp.png")
 
     def loadImage(self, imageName):
         """
@@ -53,9 +55,9 @@ class ImageUtils(object):
         usage: box = (100, 100, 600, 600)
               screenShot().subImage(box)
         """
-        image = Image.open(self.tempFile + "\\iunitemp.png")
+        image = Image.open(PATH(self.tempFile + "/temp.png"))
         newImage = image.crop(box)
-        newImage.save(self.tempFile + "\\iunitemp.png")
+        newImage.save(PATH(self.tempFile + "/temp.png"))
 
         return self
 
@@ -69,7 +71,7 @@ class ImageUtils(object):
         import math
         import operator
 
-        image1 = Image.open(self.tempFile + "\\iuniTemp.png")
+        image1 = Image.open(PATH(self.tempFile + "/temp.png"))
         image2 = loadImage
 
 
