@@ -16,7 +16,7 @@ import xuxu.autotest.element.Element;
  */
 public class AdbDevice {
 	public AdbDevice() {
-		ShellUtils.cmd("adb wait-for-device");
+		ShellUtils.cmd("wait-for-device");
 	}
 
 	/**
