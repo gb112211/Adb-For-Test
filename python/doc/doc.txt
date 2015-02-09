@@ -18,6 +18,9 @@ CLASSES
      |  fastboot(self)
      |      进入fastboot模式
      |  
+		 |  getAndroidVersion(self)
+		 |			获取设备中的Android版本号，如4.2.2
+		 |
      |  getBatteryLevel(self)
      |      获取电池电量
      |  
@@ -40,6 +43,9 @@ CLASSES
      |  
      |  getDeviceID(self)
      |      获取设备id号，return serialNo
+		 |
+		 |	getDeviceModel(self)
+		 |			获取设备型号
      |  
      |  getDeviceState(self)
      |      获取设备状态： offline | bootloader | device
@@ -55,6 +61,9 @@ CLASSES
      |  
      |  getScreenResolution(self)
      |      获取设备屏幕分辨率，return (width, high)
+		 |
+		 |	getSdkVersion(self)
+		 |			获取设备SDK版本号
      |  
      |  killProcess(self, pid)
      |      杀死应用进程

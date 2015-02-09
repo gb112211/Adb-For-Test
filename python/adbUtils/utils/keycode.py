@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+__author__ = "xuxu"
+
 POWER = 26
 BACK = 4
 HOME = 3

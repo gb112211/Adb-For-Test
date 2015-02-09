@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 #coding=utf-8
 
+__author__ = "xuxu"
+
 import tempfile
 import os
 import re
 import xml.etree.cElementTree as ET
-import time
-import subprocess
+
+import adbUtils as utils
 
 PATH = lambda p: os.path.abspath(p)
 
@@ -25,9 +27,9 @@ class Element(object):
         """
         获取当前Activity的控件树
         """
-        os.popen("adb shell uiautomator dump /data/local/tmp/uidump.xml")
-        os.popen("adb pull data/local/tmp/uidump.xml " + self.tempFile)
-        os.popen("adb shell rm /data/local/tmp/uidump.xml")
+        utils.shell("uiautomator dump /data/local/tmp/uidump.xml").wait()
+        utils.adb("pull data/local/tmp/uidump.xml %s" %self.tempFile).wait()
+        utils.shell("rm /data/local/tmp/uidump.xml").wait()
 
     def __element(self, attrib, name):
         """
@@ -40,7 +42,7 @@ class Element(object):
         Ypoint = None
 
         self.__uidump()
-        tree = ET.ElementTree(file=PATH(self.tempFile + "/uidump.xml"))
+        tree = ET.ElementTree(file=PATH("%s/uidump.xml" %self.tempFile))
         treeIter = tree.iter(tag="node")
         for elem in treeIter:
             if elem.attrib[attrib] == name:
@@ -66,7 +68,7 @@ class Element(object):
         """
         pointList = []
         self.__uidump()
-        tree = ET.ElementTree(file=PATH(self.tempFile + "/uidump.xml"))
+        tree = ET.ElementTree(file=PATH("%s/uidump.xml" %self.tempFile))
         treeIter = tree.iter(tag="node")
         for elem in treeIter:
             if elem.attrib[attrib] == name:
@@ -87,7 +89,7 @@ class Element(object):
         coord = []
 
         self.__uidump()
-        tree = ET.ElementTree(file=PATH(self.tempFile + "/uidump.xml"))
+        tree = ET.ElementTree(file=PATH("%s/uidump.xml" %self.tempFile))
         treeIter = tree.iter(tag="node")
         for elem in treeIter:
             if elem.attrib[attrib] == name:
@@ -106,7 +108,7 @@ class Element(object):
 
         pointList = []
         self.__uidump()
-        tree = ET.ElementTree(file=PATH(self.tempFile + "/uidump.xml"))
+        tree = ET.ElementTree(file=PATH("%s/uidump.xml" %self.tempFile))
         treeIter = tree.iter(tag="node")
         for elem in treeIter:
             if elem.attrib[attrib] == name:
@@ -122,7 +124,7 @@ class Element(object):
         """
         boolList = []
         self.__uidump()
-        tree = ET.ElementTree(file=PATH(self.tempFile + "/uidump.xml"))
+        tree = ET.ElementTree(file=PATH("%s/uidump.xml" %self.tempFile))
         treeIter = tree.iter(tag="node")
         for elem in treeIter:
             if elem.attrib[attrib] == name:
@@ -226,4 +228,3 @@ class Element(object):
         通过元素类名判断checked的布尔值，返回布尔值列表
         """
         return self.__checked("class", className)
-
