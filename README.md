@@ -37,6 +37,9 @@ java: jdk1.6以上，不需要其他任何第三方jar包
 python：使用setup.py install 安装，未去强制判断要求安装PIL，使用ImageUtils时则需要安装<br>
 java：导入Adb-For-Test.jar即可
 
+API:</br>
+*[java](https://github.com/gb112211/Adb-For-Test/blob/master/java/AdbForTest/doc/index.html)
+
 ###简单例子
 
 在TestDemo目录下分别有python、java的例子，使用的apk是ApiDemos.apk.<br>
