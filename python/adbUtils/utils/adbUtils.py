@@ -87,8 +87,8 @@ class ADB(object):
         """
         if system is "Windows":
             pidinfo = shell("ps | findstr %s$" %packageName).stdout.read()
-        
-        pidinfo = shell("ps | grep -w %s" %packageName).stdout.read()
+        else:
+            pidinfo = shell("ps | grep -w %s" %packageName).stdout.read()
 
         if pidinfo == '':
             return "the process doesn't exist."
