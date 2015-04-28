@@ -4,12 +4,12 @@
 通过`adb命令`实现简单的点击、滑动、长按等效果，可通过比例定位元素、通过元素定位（需要Android版本高于4.0），用于`Android Test`，拥有monkeyrunner的绝大部分功能 
 
 ###2015.04.28
- * 重构adbUitils模块，合并`AppInfo`、`Action`类直`ADB`中
+ * 重构python版本中的adbUitils模块，合并`AppInfo`、`Action`类直`ADB`中
  
  	> 初始化方法：
  
 	> adb = ADB() 或 adb = ADB("device_id")
- * 重构的目的是增加对多设备的支持，通过传入device_id，解决有多台设备连接USB时无法执行脚本的问题
+ * 重构的目的是增加python版本对多设备的支持，通过传入device_id，解决有多台设备连接USB时无法执行脚本的问题
  * `Element`类中增加通过属性`content-desc`定位元素的方法
 
 ###为何写这么个东西？
