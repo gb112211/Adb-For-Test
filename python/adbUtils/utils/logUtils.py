@@ -16,7 +16,7 @@ class Log(object):
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
 
-        self.logFile = file(PATH( + "%s/%s" %(self.pathself.fileName)), "a")
+        self.logFile = file(PATH("%s/%s" %(self.pathself.fileName)), "a")
 
     def info(self, info):
 

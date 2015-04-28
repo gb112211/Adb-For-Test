@@ -8,7 +8,7 @@ import os
 import re
 import xml.etree.cElementTree as ET
 
-import adbUtils as utils
+from adbUtils import ADB
 
 PATH = lambda p: os.path.abspath(p)
 
@@ -16,10 +16,12 @@ class Element(object):
     """
     通过元素定位
     """
-    def __init__(self):
+    def __init__(self, device_id=""):
         """
         初始化，获取系统临时文件存储目录，定义匹配数字模式
         """
+        self.utils = ADB(device_id)
+        
         self.tempFile = tempfile.gettempdir()
         self.pattern = re.compile(r"\d+")
 
@@ -27,9 +29,12 @@ class Element(object):
         """
         获取当前Activity的控件树
         """
-        utils.shell("uiautomator dump /data/local/tmp/uidump.xml").wait()
-        utils.adb("pull data/local/tmp/uidump.xml %s" %self.tempFile).wait()
-        utils.shell("rm /data/local/tmp/uidump.xml").wait()
+        if int(self.utils.getSdkVersion()) >= 19:
+            self.utils.shell("uiautomator dump --compressed /data/local/tmp/uidump.xml").wait()
+        else:
+            self.utils.shell("uiautomator dump /data/local/tmp/uidump.xml").wait()
+        self.utils.adb("pull data/local/tmp/uidump.xml %s" %self.tempFile).wait()
+        self.utils.shell("rm /data/local/tmp/uidump.xml").wait()
 
     def __element(self, attrib, name):
         """
@@ -174,6 +179,18 @@ class Element(object):
         通过元素的resource-id定位多个相同id的元素
         """
         return self.__elements("resource-id",id)
+    
+    def findElementByContentDesc(self, contentDesc):
+        """
+        通过元素的content-desc定位单个元素
+        """
+        return self.__element("content-desc", contentDesc)
+    
+    def findElementsByContentDesc(self, contentDesc):
+        """
+        通过元素的content-desc定位多个相同的元素
+        """
+        return self.__elements("content-desc", contentDesc)
 
     def getElementBoundByName(self, name):
         """
@@ -198,6 +215,18 @@ class Element(object):
         通过元素类名获取多个相同class元素的区域
         """
         return self.__bounds("class", className)
+    
+    def getElementBoundByContentDesc(self, contentDesc):
+        """
+        通过元素content-desc获取单个元素的区域
+        """
+        return self.__bound("content-desc", contentDesc)
+
+    def getElementBoundsByContentDesc(self, contentDesc):
+        """
+        通过元素content-desc获取多个相同元素的区域
+        """
+        return self.__bounds("content-desc", contentDesc)
 
     def getElementBoundById(self, id):
         """
@@ -228,3 +257,10 @@ class Element(object):
         通过元素类名判断checked的布尔值，返回布尔值列表
         """
         return self.__checked("class", className)
+    
+if __name__ == "__main__":
+    import time
+    element = Element()
+    adb = ADB()
+    print adb.getAndroidVersion()
+    adb.touch(element.findElementByContentDesc("Shutter button"))

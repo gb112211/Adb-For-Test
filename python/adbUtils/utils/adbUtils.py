@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 
 __author__ = "xuxu"
 
@@ -7,20 +7,21 @@ import os
 import platform
 import subprocess
 import re
+from time import sleep
 
 import keycode
 
 
 PATH = lambda p: os.path.abspath(p)
 
-#判断系统类型，windows使用findstr，linux使用grep
+# 判断系统类型，windows使用findstr，linux使用grep
 system = platform.system()
 if system is "Windows":
     find_util = "findstr"
 else:
     find_util = "grep"
 
-#判断是否设置环境变量ANDROID_HOME
+# 判断是否设置环境变量ANDROID_HOME
 if "ANDROID_HOME" in os.environ:
     if system == "Windows":
         command = os.path.join(os.environ["ANDROID_HOME"], "platform-tools", "adb.exe")
@@ -30,53 +31,57 @@ else:
     raise EnvironmentError(
         "Adb not found in $ANDROID_HOME path: %s." % os.environ["ANDROID_HOME"])
 
-#adb命令
-def adb(args):
-    cmd = "%s %s" %(command, str(args))
-    return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-#adb shell命令
-def shell(args):
-    cmd = "%s shell %s" %(command, str(args))
-    return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
 
 class ADB(object):
+    """
+    单个设备，可不传入参数device_id
+    """
+    def __init__(self, device_id = ""):
+        if device_id == "":
+            self.device_id = ""
+        else:
+            self.device_id = "-s %s" %device_id
 
-    def __init__(self):
-        """
-        等待连接上设备或模拟器
-        """
-        adb("wait-for-device")
+
+    # adb命令
+    def adb(self, args):
+        cmd = "%s %s %s" % (command, self.device_id, str(args))
+        return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # adb shell命令
+    def shell(self, args):
+        cmd = "%s %s shell %s" % (command, self.device_id, str(args))
+        return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 
     def getDeviceState(self):
         """
         获取设备状态： offline | bootloader | device
         """
-        return adb("get-state").stdout.read().strip()
+        return self.adb("get-state").stdout.read().strip()
     def getDeviceID(self):
         """
         获取设备id号，return serialNo
         """
-        return adb("get-serialno").stdout.read().strip()
+        return self.adb("get-serialno").stdout.read().strip()
 
     def getAndroidVersion(self):
         """
         获取设备中的Android版本号，如4.2.2
         """
-        return shell("getprop ro.build.version.release").stdout.read().strip()
+        return self.shell("getprop ro.build.version.release").stdout.read().strip()
 
     def getSdkVersion(self):
         """
         获取设备SDK版本号
         """
-        return shell("getprop ro.build.version.sdk").stdout.read().strip()
+        return self.shell("getprop ro.build.version.sdk").stdout.read().strip()
 
     def getDeviceModel(self):
         """
         获取设备型号
         """
-        return shell("getprop ro.product.model").stdout.read().strip()
+        return self.shell("getprop ro.product.model").stdout.read().strip()
 
     def getPid(self, packageName):
         """
@@ -86,9 +91,9 @@ class ADB(object):
         usage: getPid("com.android.settings")
         """
         if system is "Windows":
-            pidinfo = shell("ps | findstr %s$" %packageName).stdout.read()
-        else:
-            pidinfo = shell("ps | grep -w %s" %packageName).stdout.read()
+            pidinfo = self.shell("ps | findstr %s$" % packageName).stdout.read()
+        
+        pidinfo = self.shell("ps | grep -w %s" % packageName).stdout.read()
 
         if pidinfo == '':
             return "the process doesn't exist."
@@ -107,24 +112,24 @@ class ADB(object):
         usage: killProcess(154)
         注：杀死系统应用进程需要root权限
         """
-        if shell("kill %s" %str(pid)).stdout.read().split(": ")[-1] == "":
+        if self.shell("kill %s" % str(pid)).stdout.read().split(": ")[-1] == "":
             return "kill success"
         else:
-            return shell("kill %s" %str(pid)).stdout.read().split(": ")[-1]
+            return self.shell("kill %s" % str(pid)).stdout.read().split(": ")[-1]
 
     def quitApp(self, packageName):
         """
         退出app，类似于kill掉进程
         usage: quitApp("com.android.settings")
         """
-        shell("am force-stop %s" %packageName)
+        self.shell("am force-stop %s" % packageName)
 
     def getFocusedPackageAndActivity(self):
         """
         获取当前应用界面的包名和Activity，返回的字符串格式为：packageName/activityName
         """
         pattern = re.compile(r"[a-zA-Z0-9\.]+/.[a-zA-Z0-9\.]+")
-        out = shell("dumpsys window w | %s \/ | %s name=" %(find_util, find_util)).stdout.read()
+        out = self.shell("dumpsys window w | %s \/ | %s name=" % (find_util, find_util)).stdout.read()
 
         return pattern.findall(out)[0]
 
@@ -143,7 +148,7 @@ class ADB(object):
         """
         获取电池电量
         """
-        level = shell("dumpsys battery | %s level" %find_util).stdout.read().split(": ")[-1]
+        level = self.shell("dumpsys battery | %s level" % find_util).stdout.read().split(": ")[-1]
 
         return int(level)
 
@@ -161,7 +166,7 @@ class ADB(object):
                       3 : "BATTERY_STATUS_DISCHARGING",
                       4 : "BATTERY_STATUS_NOT_CHARGING",
                       5 : "BATTERY_STATUS_FULL"}
-        status = shell("dumpsys battery | %s status" %find_util).stdout.read().split(": ")[-1]
+        status = self.shell("dumpsys battery | %s status" % find_util).stdout.read().split(": ")[-1]
 
         return statusDict[int(status)]
 
@@ -169,7 +174,7 @@ class ADB(object):
         """
         获取电池温度
         """
-        temp = shell("dumpsys battery | %s temperature" %find_util).stdout.read().split(": ")[-1]
+        temp = self.shell("dumpsys battery | %s temperature" % find_util).stdout.read().split(": ")[-1]
 
         return int(temp) / 10.0
 
@@ -178,7 +183,7 @@ class ADB(object):
         获取设备屏幕分辨率，return (width, high)
         """
         pattern = re.compile(r"\d+")
-        out = shell("dumpsys display | %s PhysicalDisplayInfo" %find_util).stdout.read()
+        out = self.shell("dumpsys display | %s PhysicalDisplayInfo" % find_util).stdout.read()
         display = pattern.findall(out)
 
         return (int(display[0]), int(display[1]))
@@ -187,27 +192,20 @@ class ADB(object):
         """
         重启设备
         """
-        adb("reboot")
+        self.adb("reboot")
 
     def fastboot(self):
         """
         进入fastboot模式
         """
-        adb("reboot bootloader")
-
-class AppInfo(object):
-    """
-    获取部分app信息
-    """
-    def __init__(self):
-        pass
+        self.adb("reboot bootloader")
 
     def getSystemAppList(self):
         """
         获取设备中安装的系统应用包名列表
         """
         sysApp = []
-        for packages in shell("pm list packages -s").stdout.readlines():
+        for packages in self.shell("pm list packages -s").stdout.readlines():
             sysApp.append(packages.split(":")[-1].splitlines()[0])
 
         return sysApp
@@ -217,7 +215,7 @@ class AppInfo(object):
         获取设备中安装的第三方应用包名列表
         """
         thirdApp = []
-        for packages in shell("pm list packages -3").stdout.readlines():
+        for packages in self.shell("pm list packages -3").stdout.readlines():
             thirdApp.append(packages.split(":")[-1].splitlines()[0])
 
         return thirdApp
@@ -228,7 +226,7 @@ class AppInfo(object):
         usage: getMatchingAppList("qq")
         """
         matApp = []
-        for packages in shell("pm list packages %s" %keyword).stdout.readlines():
+        for packages in self.shell("pm list packages %s" % keyword).stdout.readlines():
             matApp.append(packages.split(":")[-1].splitlines()[0])
 
         return matApp
@@ -238,7 +236,7 @@ class AppInfo(object):
         获取启动应用所花时间
         usage: getAppStartTotalTime("com.android.settings/.Settings")
         """
-        time = shell("am start -W %s | %s TotalTime" %(component, find_util)) \
+        time = self.shell("am start -W %s | %s TotalTime" % (component, find_util)) \
             .stdout.read().split(": ")[-1]
         return int(time)
 
@@ -249,7 +247,7 @@ class AppInfo(object):
         - appFile -: app路径
         usage: install("d:\\apps\\Weico.apk")
         """
-        adb("install %s" %appFile)
+        self.adb("install %s" % appFile)
 
     def isInstall(self, packageName):
         """
@@ -267,14 +265,14 @@ class AppInfo(object):
         args:
         - packageName -:应用包名，非apk名
         """
-        adb("uninstall %s" %packageName)
+        self.adb("uninstall %s" % packageName)
 
     def clearAppData(self, packageName):
         """
         清除应用用户数据
         usage: clearAppData("com.android.contacts")
         """
-        if "Success" in shell("pm clear %s" %packageName).stdout.read().splitlines():
+        if "Success" in self.shell("pm clear %s" % packageName).stdout.read().splitlines():
             return "clear user data success "
         else:
             return "make sure package exist"
@@ -283,38 +281,31 @@ class AppInfo(object):
         """
         重置当前应用
         """
-        packageName = ADB().getCurrentPackageName()
-        component = ADB().getFocusedPackageAndActivity()
+        packageName = self.getCurrentPackageName()
+        component = self.getFocusedPackageAndActivity()
         self.clearAppData(packageName)
-        Action().startActivity(component)
-
-
-class Action(object):
-    def __init__(self):
-        self.display = ADB().getScreenResolution()
-        self.width = self.display[0]
-        self.high = self.display[1]
+        self.startActivity(component)
 
     def startActivity(self, component):
         """
         启动一个Activity
         usage: startActivity(component = "com.android.settinrs/.Settings")
         """
-        shell("am start -n %s" %component)
+        self.shell("am start -n %s" % component)
 
     def startWebpage(self, url):
         """
         使用系统默认浏览器打开一个网页
         usage: startWebpage("http://www.baidu.com")
         """
-        shell("am start -a android.intent.action.VIEW -d %s" %url)
+        self.shell("am start -a android.intent.action.VIEW -d %s" % url)
 
     def callPhone(self, number):
         """
         启动拨号器拨打电话
         usage: callPhone(10086)
         """
-        shell("am start -a android.intent.action.CALL -d tel:%s" %str(number))
+        self.shell("am start -a android.intent.action.CALL -d tel:%s" % str(number))
 
     def sendKeyEvent(self, keycode):
         """
@@ -324,14 +315,16 @@ class Action(object):
         http://developer.android.com/reference/android/view/KeyEvent.html
         usage: sendKeyEvent(keycode.HOME)
         """
-        shell("input keyevent %s" %str(keycode))
+        self.shell("input keyevent %s" % str(keycode))
+        sleep(0.5)
 
     def longPressKey(self, keycode):
         """
         发送一个按键长按事件，Android 4.4以上
         usage: longPressKey(keycode.HOME)
         """
-        shell("input keyevent --longpress %s" %str(keycode))
+        self.shell("input keyevent --longpress %s" % str(keycode))
+        sleep(0.5)
 
     def touch(self, e=None, x=None, y=None):
         """
@@ -341,19 +334,21 @@ class Action(object):
         if(e != None):
             x = e[0]
             y = e[1]
-        if(0< x < 1):
+        if(0 < x < 1):
             x = x * self.width
-        if(0<y<1):
+        if(0 < y < 1):
             y = y * self.high
 
-        shell("input tap %s %s" %(str(x), str(y)))
+        self.shell("input tap %s %s" % (str(x), str(y)))
+        sleep(0.5)
 
     def touchByElement(self, element):
         """
         点击元素
         usage: touchByElement(Element().findElementByName(u"计算器"))
         """
-        shell("input tap %s %s" %(str(element[0]), str(element[1])))
+        self.shell("input tap %s %s" % (str(element[0]), str(element[1])))
+        sleep(0.5)
 
     def touchByRatio(self, ratioWidth, ratioHigh):
         """
@@ -363,16 +358,17 @@ class Action(object):
         - ratioHigh -: high占比, 0<ratioHigh<1
         usage: touchByRatio(0.5, 0.5) 点击屏幕中心位置
         """
-        shell("input tap %s %s" %(str(ratioWidth * self.width), str(ratioHigh * self.high)))
+        self.shell("input tap %s %s" % (str(ratioWidth * self.getScreenResolution()[0]), str(ratioHigh * self.getScreenResolution()[1])))
+        sleep(0.5)
 
-
-    def swipeByCoord(self, start_x, start_y, end_x, end_y, duration = " "):
+    def swipeByCoord(self, start_x, start_y, end_x, end_y, duration=" "):
         """
         滑动事件，Android 4.4以上可选duration(ms)
         usage: swipe(800, 500, 200, 500)
         """
-        shell("input swipe %s %s %s %s %s" %(str(start_x), str(start_y), str(end_x), str(end_y), str(duration)))
-
+        self.shell("input swipe %s %s %s %s %s" % (str(start_x), str(start_y), str(end_x), str(end_y), str(duration)))
+        sleep(0.5)
+        
     def swipe(self, e1=None, e2=None, start_x=None, start_y=None, end_x=None, end_y=None, duration=" "):
         """
         滑动事件，Android 4.4以上可选duration(ms)
@@ -386,25 +382,27 @@ class Action(object):
         if(e2 != None):
             end_x = e2[0]
             end_y = e2[1]
-        if(0< start_x < 1):
+        if(0 < start_x < 1):
             start_x = start_x * self.width
-        if(0<start_y<1):
+        if(0 < start_y < 1):
             start_y = start_y * self.high
-        if(0<end_x<1):
+        if(0 < end_x < 1):
             end_x = end_x * self.width
-        if(0<end_y<1):
+        if(0 < end_y < 1):
             end_y = end_y * self.high
 
-        shell("input swipe %s %s %s %s %s" %(str(start_x), str(start_y), str(end_x), str(end_y), str(duration)))
-
-    def swipeByRatio(self, start_ratioWidth, start_ratioHigh, end_ratioWidth, end_ratioHigh, duration = " "):
+        self.shell("input swipe %s %s %s %s %s" % (str(start_x), str(start_y), str(end_x), str(end_y), str(duration)))
+        sleep(0.5)
+        
+    def swipeByRatio(self, start_ratioWidth, start_ratioHigh, end_ratioWidth, end_ratioHigh, duration=" "):
         """
         通过比例发送滑动事件，Android 4.4以上可选duration(ms)
         usage: swipeByRatio(0.9, 0.5, 0.1, 0.5) 左滑
         """
-        shell("input swipe %s %s %s %s %s" %(str(start_ratioWidth * self.width), str(start_ratioHigh * self.high), \
-                                             str(end_ratioWidth * self.width), str(end_ratioHigh * self.high), str(duration)))
-
+        self.shell("input swipe %s %s %s %s %s" % (str(start_ratioWidth * self.getScreenResolution()[0]), str(start_ratioHigh * self.getScreenResolution()[1]), \
+                                             str(end_ratioWidth * self.getScreenResolution()[0]), str(end_ratioHigh * self.getScreenResolution()[1]), str(duration)))
+        sleep(0.5)
+        
     def swipeToLeft(self):
         """
         左滑屏幕
@@ -441,8 +439,9 @@ class Action(object):
         """
        长按元素, Android 4.4
         """
-        shell("input swipe %s %s %s %s %s" %(str(e[0]), str(e[1]), str(e[0]), str(e[1]), str(2000)))
-
+        self.shell("input swipe %s %s %s %s %s" % (str(e[0]), str(e[1]), str(e[0]), str(e[1]), str(2000)))
+        sleep(0.5)
+        
     def longPressByRatio(self, ratioWidth, ratioHigh):
         """
         通过比例长按屏幕某个位置, Android.4.4
@@ -462,13 +461,9 @@ class Action(object):
                 out.append(i)
         length = len(out)
         for i in xrange(length):
-            shell("input text %s" %out[i])
+            self.shell("input text %s" % out[i])
             if i != length - 1:
                 self.sendKeyEvent(keycode.SPACE)
+        sleep(0.5)
 
-if __name__ == "__main__":
-    a = ADB()
-    print [a.getAndroidVersion()]
-    print [a.getDeviceID()]
-    print [a.getSdkVersion()]
-    print [a.getDeviceModel()]
+    
