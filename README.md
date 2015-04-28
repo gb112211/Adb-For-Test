@@ -1,5 +1,5 @@
 #Adb-For-Test
-***
+
 
 通过`adb命令`实现简单的点击、滑动、长按等效果，可通过比例定位元素、通过元素定位（需要Android版本高于4.0），用于`Android Test`，拥有monkeyrunner的绝大部分功能 
 
@@ -40,7 +40,7 @@
 
  * 环境变量：需配置ANDROID_HOME
  * python：python2.7，如果用到截图对比功能，需要安装PIL库，PIL无法安装时可用[Pillow](http://www.pythonware.com/products/pil/index.htm "PIL地址")
-* java: jdk1.6以上，不需要其他任何第三方jar包,jar不可用时，可能是jdk版本问题，请自行编译
+ * java: jdk1.6以上，不需要其他任何第三方jar包,jar不可用时，可能是jdk版本问题，请自行编译
 
 ###如何使用
 
