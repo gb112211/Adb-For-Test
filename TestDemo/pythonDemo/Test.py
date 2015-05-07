@@ -16,7 +16,7 @@ PATH = lambda p : os.path.abspath(p)
 
 def test():
     #获取adb连接,单个设备可以不传该参数
-    adb = ADB("device_id")
+    adb = ADB()
 
     #获取设备信息
     print "设备序列号: " + adb.getDeviceID()
@@ -33,10 +33,12 @@ def test():
     else:
         #存在则先卸载，后安装
         adb.removeApp("com.example.android.apis")
+	time.sleep(3)
         adb.installApp(PATH(os.getcwd() + "/app/ApiDemos.apk"))
+	time.sleep(3)
         
     adb.startActivity("com.example.android.apis/.ApiDemos")
-    time.sleep(2)
+    time.sleep(3)
 
     #获取当前应用的包名、类名、包名/类名
     print adb.getCurrentPackageName()
@@ -54,7 +56,7 @@ def test():
     #延时2s
     time.sleep(2)
     #通过元素的text属性定位，点击App>>Dialog>>Single choice list>>Traffic>>OK
-    element = Element("device_id")
+    element = Element()
     
     e_app = element.findElementByName("App")
     adb.touchByElement(e_app)
