@@ -35,8 +35,8 @@ def test():
         adb.removeApp("com.example.android.apis")
 	time.sleep(3)
         adb.installApp(PATH(os.getcwd() + "/app/ApiDemos.apk"))
-	time.sleep(3)
-        
+
+    time.sleep(3)
     adb.startActivity("com.example.android.apis/.ApiDemos")
     time.sleep(3)
 
