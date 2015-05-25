@@ -23,6 +23,7 @@ public class Position {
 	private String temp = new File(tempFile + "/dumpfile").getAbsolutePath();
 
 	private Map<Integer, String> attrib = null;
+	@SuppressWarnings("rawtypes")
 	private ArrayList<HashMap> attribs = null;
 	private InputStream xml = null;
 	private List<UiDump> dumps = null;

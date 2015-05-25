@@ -397,6 +397,18 @@ public class AdbDevice {
 	public void fastboot() {
 		ShellUtils.cmd("reboot bootloader");
 	}
+	
+
+	/**
+	 * 执行shell命令
+	 * 
+	 * @param command
+	 *            shell命令
+	 * @return 返回执行命令后输出的内容
+	 */
+	public String shell(String command) {
+		return ShellUtils.getShellOut(ShellUtils.shell(command));
+	}
 
 	/**
 	 * 启动一个应用
