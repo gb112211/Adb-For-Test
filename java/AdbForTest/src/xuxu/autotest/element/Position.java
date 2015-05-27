@@ -57,7 +57,7 @@ public class Position {
 
 	/**
 	 * 通过text定位单个元素
-	 * 
+	 *
 	 * @param text
 	 * @return 返回元素位置坐标
 	 */
@@ -67,7 +67,7 @@ public class Position {
 
 	/**
 	 * 通过text定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param text
 	 * @return 返回元素位置坐标集合
 	 */
@@ -77,7 +77,7 @@ public class Position {
 
 	/**
 	 * 通过resource-id定位单个元素
-	 * 
+	 *
 	 * @param resourceId
 	 * @return 返回元素位置坐标
 	 */
@@ -87,7 +87,7 @@ public class Position {
 
 	/**
 	 * 通过resource-id定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param resourceId
 	 * @return 返回元素位置坐标集合
 	 */
@@ -97,7 +97,7 @@ public class Position {
 
 	/**
 	 * 通过class定位单个元素
-	 * 
+	 *
 	 * @param className
 	 * @return 返回元素位置坐标
 	 */
@@ -107,7 +107,7 @@ public class Position {
 
 	/**
 	 * 通过class定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param className
 	 * @return 返回元素位置坐标集合
 	 */
@@ -117,7 +117,7 @@ public class Position {
 
 	/**
 	 * 通过checked定位单个元素
-	 * 
+	 *
 	 * @param checked
 	 * @return 返回元素位置坐标
 	 */
@@ -127,7 +127,7 @@ public class Position {
 
 	/**
 	 * 通过checked定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param checked
 	 * @return 返回元素位置坐标集合
 	 */
@@ -137,7 +137,7 @@ public class Position {
 
 	/**
 	 * 通过checkable定位单个元素
-	 * 
+	 *
 	 * @param checkable
 	 * @return 返回元素位置坐标
 	 */
@@ -147,7 +147,7 @@ public class Position {
 
 	/**
 	 * 通过checkable定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param checkable
 	 * @return 返回元素位置坐标集合
 	 */
@@ -157,7 +157,7 @@ public class Position {
 
 	/**
 	 * 通过content-desc定位单个元素
-	 * 
+	 *
 	 * @param contentdesc
 	 * @return 返回元素位置坐标
 	 */
@@ -167,7 +167,7 @@ public class Position {
 
 	/**
 	 * 通过content-desc定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param contentdesc
 	 * @return 返回元素位置坐标集合
 	 */
@@ -177,7 +177,7 @@ public class Position {
 
 	/**
 	 * 通过clickable定位单个元素
-	 * 
+	 *
 	 * @param clickable
 	 * @return 返回元素位置坐标
 	 */
@@ -187,7 +187,7 @@ public class Position {
 
 	/**
 	 * 通过clickable定位多个同属性的相同元素
-	 * 
+	 *
 	 * @param clickable
 	 * @return 返回元素位置坐标集合
 	 */
@@ -197,7 +197,7 @@ public class Position {
 
 	/**
 	 * 通过text获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param text
 	 * @return 返回元素区域坐标集合
 	 */
@@ -207,7 +207,7 @@ public class Position {
 
 	/**
 	 * 通过resource-id获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param resourceId
 	 * @return 返回元素区域坐标集合
 	 */
@@ -217,7 +217,7 @@ public class Position {
 
 	/**
 	 * 通过class获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param className
 	 * @return 返回元素区域坐标集合
 	 */
@@ -227,7 +227,7 @@ public class Position {
 
 	/**
 	 * 通过checked获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param checked
 	 * @return 返回元素区域坐标集合
 	 */
@@ -237,7 +237,7 @@ public class Position {
 
 	/**
 	 * 通过checkable获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param checkable
 	 * @return 返回元素区域坐标集合
 	 */
@@ -247,7 +247,7 @@ public class Position {
 
 	/**
 	 * 通过content-desc获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param contentdesc
 	 * @return 返回元素区域坐标集合
 	 */
@@ -257,7 +257,7 @@ public class Position {
 
 	/**
 	 * 通过clickable获取元素区域坐标，即bounds属性，方便截图对比功能
-	 * 
+	 *
 	 * @param clickable
 	 * @return 返回元素区域坐标集合
 	 */
@@ -267,17 +267,17 @@ public class Position {
 
 	/**
 	 * 通过resource-id获取元素text属性
-	 * 
+	 *
 	 * @param resourceId
 	 * @return 返回text集合
 	 */
 	public ArrayList<String> getTextById(String resourceId) {
-		return this.getText(ElementAttribs.CLASS, resourceId);
+		return this.getText(ElementAttribs.RESOURCE_ID, resourceId);
 	}
 
 	/**
 	 * 通过class获取元素text属性
-	 * 
+	 *
 	 * @param className
 	 * @return 返回text集合
 	 */
@@ -290,18 +290,18 @@ public class Position {
 		// 获取元素区域中心位置坐标
 		CharSequence input = getAttrib(att, str).get(
 				ElementAttribs.BOUNDS);
-		
+
 		if (input == null) {
 			throw new TestException("未在当前界面找到元素(" + str + ")");
 		}
-		
+
 		Matcher mat = pattern.matcher(input);
 		ArrayList<Integer> coords = new ArrayList<Integer>();
 		while (mat.find()) {
 			coords.add(new Integer(mat.group()));
 		}
-		
-		
+
+
 
 		int startX = coords.get(0);
 		int startY = coords.get(1);
@@ -414,7 +414,7 @@ public class Position {
 				flag = str.equals(dump.getContentDesc());
 				break;
 			case 6:
-				flag = str.equals(dump.getCheckable());
+				flag = str.equals(dump.getClickable());
 				break;
 			default:
 				break;
@@ -463,7 +463,7 @@ public class Position {
 				flag = str.equals(dump.getContentDesc());
 				break;
 			case 6:
-				flag = str.equals(dump.getCheckable());
+				flag = str.equals(dump.getClickable());
 				break;
 			default:
 				break;
