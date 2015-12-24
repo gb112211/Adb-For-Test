@@ -29,7 +29,6 @@ public class Position {
 	private List<UiDump> dumps = null;
 
 	public Position() {
-		System.out.println(temp);
 		File dumpFile = new File(temp);
 		if (!dumpFile.exists()) {
 			dumpFile.mkdir();

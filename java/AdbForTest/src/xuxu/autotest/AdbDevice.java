@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import xuxu.autotest.utils.MonkeyScriptUtils;
 import xuxu.autotest.utils.ReUtils;
 import xuxu.autotest.utils.ShellUtils;
 import xuxu.autotest.element.Element;
@@ -62,10 +63,8 @@ public class AdbDevice {
 	 */
 	public int[] getScreenResolution() {
 		Pattern pattern = Pattern.compile("([0-9]+)");
-		Process ps = ShellUtils
-				.shell("dumpsys display | grep PhysicalDisplayInfo");
-		ArrayList<Integer> out = ReUtils.matchInteger(pattern,
-				ShellUtils.getShellOut(ps));
+		Process ps = ShellUtils.shell("dumpsys display | grep PhysicalDisplayInfo");
+		ArrayList<Integer> out = ReUtils.matchInteger(pattern, ShellUtils.getShellOut(ps));
 
 		int[] resolution = new int[] { out.get(0), out.get(1) };
 
@@ -123,21 +122,18 @@ public class AdbDevice {
 	 */
 	public String getFocusedPackageAndActivity() {
 		Pattern pattern = Pattern.compile("([a-zA-Z0-9.]+/.[a-zA-Z0-9.]+)");
-		Process ps = ShellUtils
-				.shell("dumpsys input | grep FocusedApplication");
-		
-//		Process ps = ShellUtils.shell("dumpsys window w | grep \\/ | grep name=");
+		Process ps = ShellUtils.shell("dumpsys input | grep FocusedApplication");
 
-		ArrayList<String> component = ReUtils.matchString(pattern,
-				ShellUtils.getShellOut(ps));
+		// Process ps = ShellUtils.shell("dumpsys window w | grep \\/ | grep
+		// name=");
 
-//		 会有FocusedApplication: <null>情况发生
+		ArrayList<String> component = ReUtils.matchString(pattern, ShellUtils.getShellOut(ps));
+
+		// 会有FocusedApplication: <null>情况发生
 		if (component.isEmpty()) {
 			return ReUtils
-					.matchString(
-							pattern,
-							ShellUtils.getShellOut(ShellUtils
-									.shell("dumpsys window w | grep \\/ | grep name=")))
+					.matchString(pattern,
+							ShellUtils.getShellOut(ShellUtils.shell("dumpsys window w | grep \\/ | grep name=")))
 					.get(0);
 		}
 
@@ -172,8 +168,7 @@ public class AdbDevice {
 		Pattern pattern = Pattern.compile("([\" \"][0-9]+)");
 		Process ps = ShellUtils.shell("ps | grep -w " + packageName);
 
-		ArrayList<Integer> num = ReUtils.matchInteger(pattern,
-				ShellUtils.getShellOut(ps));
+		ArrayList<Integer> num = ReUtils.matchInteger(pattern, ShellUtils.getShellOut(ps));
 
 		if (num.isEmpty()) {
 			throw new TestException("应用包名不存在或者进程未开启...");
@@ -297,8 +292,7 @@ public class AdbDevice {
 	 * @return 返回时间值
 	 */
 	public int getAppStartTotalTime(String component) {
-		Process ps = ShellUtils.shell("am start -W " + component
-				+ " | grep TotalTime");
+		Process ps = ShellUtils.shell("am start -W " + component + " | grep TotalTime");
 		String out = ShellUtils.getShellOut(ps).trim();
 
 		return new Integer(out.split(": ")[1]);
@@ -307,7 +301,7 @@ public class AdbDevice {
 	public XuImage getSceenshot() {
 		return XuImage.getXuImage().screenShot();
 	}
-	
+
 	/**
 	 * 复制设备上的文件至本地
 	 * 
@@ -317,8 +311,7 @@ public class AdbDevice {
 	 *            本地路径
 	 */
 	public void pullFile(String remotePath, String localPath) {
-		ShellUtils.getShellOut(ShellUtils.cmd("pull " + remotePath + " "
-				+ localPath));
+		ShellUtils.getShellOut(ShellUtils.cmd("pull " + remotePath + " " + localPath));
 	}
 
 	/**
@@ -330,8 +323,7 @@ public class AdbDevice {
 	 *            设备上的存储路径
 	 */
 	public void pushFile(String localPath, String remotePath) {
-		ShellUtils.getShellOut(ShellUtils.cmd("push " + localPath + " "
-				+ remotePath));
+		ShellUtils.getShellOut(ShellUtils.cmd("push " + localPath + " " + remotePath));
 	}
 
 	/**
@@ -352,8 +344,7 @@ public class AdbDevice {
 	 * @return 已安装，返回true，否则返回false
 	 */
 	public boolean isInstalled(String packageName) {
-		if (getThirdAppList().contains(packageName)
-				|| getSystemAppList().contains(packageName)) {
+		if (getThirdAppList().contains(packageName) || getSystemAppList().contains(packageName)) {
 			return true;
 		}
 		return false;
@@ -397,7 +388,6 @@ public class AdbDevice {
 	public void fastboot() {
 		ShellUtils.cmd("reboot bootloader");
 	}
-	
 
 	/**
 	 * 执行shell命令
@@ -437,8 +427,7 @@ public class AdbDevice {
 	 *            电话号码
 	 */
 	public void callPhone(int number) {
-		ShellUtils.shell("am start -a android.intent.action.CALL -d tel:"
-				+ number);
+		ShellUtils.shell("am start -a android.intent.action.CALL -d tel:" + number);
 	}
 
 	/**
@@ -453,13 +442,18 @@ public class AdbDevice {
 	}
 
 	/**
-	 * 长按物理键，需要android 4.4以上
+	 * 长按物理键
 	 * 
 	 * @param keycode
 	 *            键值
 	 */
 	public void longPressKey(int keycode) {
-		ShellUtils.shell("input keyevent --longpress " + keycode);
+		String param1 = "DispatchKey(0,0,0," + keycode + ",0,0,0,0)";
+		String param2 = "UserWait(1500)";
+		String param3 = "DispatchKey(0,0,1," + keycode + ",0,0,0,0)";
+		String param = param1 + "\n" + param2 + "\n" + param3;
+		MonkeyScriptUtils.writeScript(param);
+		runMonkey();
 		sleep(500);
 	}
 
@@ -516,13 +510,17 @@ public class AdbDevice {
 	 *            持续时间
 	 */
 	public void swipe(int startX, int startY, int endX, int endY, long ms) {
-		if (getSdkVersion() < 19) {
-			ShellUtils.shell("input swipe " + startX + " " + startY + " "
-					+ endX + " " + endY);
-		} else {
-			ShellUtils.shell("input swipe " + startX + " " + startY + " "
-					+ endX + " " + endY + " " + ms);
-		}
+
+		String param = startX + "," + startY + "," + endX + "," + endY + "," + ms;
+		MonkeyScriptUtils.writeScript("Drag(" + param + ")");
+		runMonkey();
+
+		/*
+		 * if (getSdkVersion() < 19) { ShellUtils.shell("input swipe " + startX
+		 * + " " + startY + " " + endX + " " + endY); } else { ShellUtils.shell(
+		 * "input swipe " + startX + " " + startY + " " + endX + " " + endY +
+		 * " " + ms); }
+		 */
 
 		sleep(500);
 	}
@@ -541,15 +539,14 @@ public class AdbDevice {
 	 * @param ms
 	 *            持续时间
 	 */
-	public void swipe(double startX, double startY, double endX, double endY,
-			long ms) {
+	public void swipe(double startX, double startY, double endX, double endY, long ms) {
+
 		double[] coords = ratio(startX, startY, endX, endY);
 		if (getSdkVersion() < 19) {
-			ShellUtils.shell("input swipe " + coords[0] + " " + coords[1] + " "
-					+ coords[2] + " " + coords[3]);
+			ShellUtils.shell("input swipe " + coords[0] + " " + coords[1] + " " + coords[2] + " " + coords[3]);
 		} else {
-			ShellUtils.shell("input swipe " + coords[0] + " " + coords[1] + " "
-					+ coords[2] + " " + coords[3] + " " + ms);
+			ShellUtils
+					.shell("input swipe " + coords[0] + " " + coords[1] + " " + coords[2] + " " + coords[3] + " " + ms);
 		}
 
 		sleep(500);
@@ -566,13 +563,16 @@ public class AdbDevice {
 	 *            持续时间
 	 */
 	public void swipe(Element e1, Element e2, long ms) {
-		if (getSdkVersion() < 19) {
-			ShellUtils.shell("input swipe " + e1.getX() + " " + e1.getY() + " "
-					+ e2.getX() + " " + e2.getY());
-		} else {
-			ShellUtils.shell("input swipe " + e1.getX() + " " + e1.getY() + " "
-					+ e2.getX() + " " + e2.getY() + " " + ms);
-		}
+		String param = e1.getX() + "," + e1.getY() + "," + e2.getX() + "," + e2.getY() + "," + ms;
+		MonkeyScriptUtils.writeScript("Drag(" + param + ")");
+		runMonkey();
+
+		/*
+		 * if (getSdkVersion() < 19) { ShellUtils.shell("input swipe " +
+		 * e1.getX() + " " + e1.getY() + " " + e2.getX() + " " + e2.getY()); }
+		 * else { ShellUtils.shell("input swipe " + e1.getX() + " " + e1.getY()
+		 * + " " + e2.getX() + " " + e2.getY() + " " + ms); }
+		 */
 
 		sleep(500);
 	}
@@ -614,7 +614,9 @@ public class AdbDevice {
 	 *            y坐标
 	 */
 	public void longPress(int x, int y) {
-		swipe(x, y, x, y, 1500);
+		String param = "PressAndHold(" + x + "," + y + ",1500)";
+		MonkeyScriptUtils.writeScript(param);
+		runMonkey();
 	}
 
 	/**
@@ -636,7 +638,39 @@ public class AdbDevice {
 	 *            元素对象
 	 */
 	public void longPress(Element e) {
-		swipe(e, e, 1500);
+		String param = "PressAndHold(" + e.getX() + "," + e.getY() + ",1500)";
+		MonkeyScriptUtils.writeScript(param);
+		runMonkey();
+	}
+
+	/**
+	 * 缩放事件
+	 * 
+	 * @param startX1
+	 *            第一起始点x坐标
+	 * @param startY1
+	 *            第一起始点y坐标
+	 * @param endX1
+	 *            第一终点x坐标
+	 * @param endY1
+	 *            第一终点y坐标
+	 * @param startX2
+	 *            第二起始点x坐标
+	 * @param startY2
+	 *            第二起始点y坐标
+	 * @param endX2
+	 *            第二终点x坐标
+	 * @param endY2
+	 *            第二终点y坐标
+	 * @param ms
+	 *            持续时间
+	 */
+	public void pinchZoom(int startX1, int startY1, int endX1, int endY1, int startX2, int startY2, int endX2,
+			int endY2, long ms) {
+		String param = startX1 + "," + startY1 + "," + endX1 + "," + endY1 + "," + startX2 + "," + startY2 + "," + endX2
+				+ "," + endY2 + "," + ms;
+		MonkeyScriptUtils.writeScript("PinchZoom(" + param + ")");
+		runMonkey();
 	}
 
 	/**
@@ -668,7 +702,7 @@ public class AdbDevice {
 	 * 清除文本
 	 * 
 	 * @param text
-	 *            获取到的文本框中的text
+	 *            清除文本框中的text
 	 */
 	public void clearText(String text) {
 		int length = text.length();
@@ -696,8 +730,7 @@ public class AdbDevice {
 		return coords;
 	}
 
-	private double[] ratio(double startX, double startY, double endX,
-			double endY) {
+	private double[] ratio(double startX, double startY, double endX, double endY) {
 		int[] display = getScreenResolution();
 		double[] coords = new double[4];
 
@@ -726,6 +759,10 @@ public class AdbDevice {
 		}
 
 		return coords;
+	}
+
+	private void runMonkey() {
+		shell("monkey -f /data/local/tmp/monkey.txt 1");
 	}
 
 	private void sleep(long millis) {

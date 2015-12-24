@@ -3,6 +3,9 @@
 
 通过 `adb 命令`实现简单的点击、滑动、长按等效果，可通过比例定位元素、通过元素定位（需要 Android 版本高于 4.0），用于`Android Test`，拥有 monkeyrunner 的绝大部分功能 
 
+###2015.12.24
+java 版本增加 pinchZoom 方法，对屏幕进行缩放
+
 ###2015.04.28
  * 重构 `python 版本`中的 adbUitils 模块，合并 `AppInfo`、`Action` 类至 `ADB`中
  
