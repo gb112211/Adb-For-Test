@@ -184,8 +184,13 @@ class ADB(object):
         """
         pattern = re.compile(r"\d+")
         out = self.shell("dumpsys display | %s PhysicalDisplayInfo" % find_util).stdout.read()
-        display = pattern.findall(out)
-
+        display = ""
+        if out:
+            display = pattern.findall(out)
+        elif int(self.getSdkVersion()) >= 18:
+            display = self.shell("wm size").stdout.read().split(":")[-1].strip().split("x")
+        else:
+            raise Exception("get screen resolution failed!")
         return (int(display[0]), int(display[1]))
 
     def reboot(self):
