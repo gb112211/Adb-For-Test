@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='AdbForTest',
-    version='20150428',
+    version='20180517',
     packages=['adbUtils', 'adbUtils.utils'],
     url='https://github.com/gb112211/Adb-For-Test',
     license='1.0',
